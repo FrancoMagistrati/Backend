@@ -1,79 +1,118 @@
+import { promises as fs } from "fs";
+
 class Product {
-    constructor(title, description, price, thumbnail, code, stock) {
-      this.title = title;
-      this.description = description;
-      this.price = price;
-      this.thumbnail = thumbnail;
-      this.code = code;
-      this.stock = stock;
-    }
+  constructor(title, description, price, thumbnail, code, stock) {
+    this.title = title;
+    this.description = description;
+    this.price = price;
+    this.thumbnail = thumbnail;
+    this.code = code;
+    this.stock = stock;
+    this.id = Product.incrementarId()
   }
-  
-  class ProductManager {
-    constructor() {
-      this.products = [];
-      this.nextId = 1; 
-    }
-  
-    addProduct = (title, description, price, thumbnail, code, stock) => {
-     
-      if (!title || !description || !price || !thumbnail || !code || !stock) {
-        console.log("Todos los campos son requeridos.");
-        return;
-      }
-  
-     
-      for (const product of this.products) {
-        if (product.code === code) {
-          console.log("El producto tiene que tener un código unico.");
-          return;
-        }
-      }
-  
-     
-      const newProduct = new Product(
-        title,
-        description,
-        price,
-        thumbnail,
-        code,
-        stock
-      );
-      newProduct.id = this.nextId++;
-      this.products.push(newProduct);
-     
-    }
-  
-    getProducts() {
-      if(this.products.length === 0){
-        console.log("No hay productos")
+  static incrementarId(){
+      if(this.idIncrement){
+        this.idIncrement++
       }else{
-        return this.products;
+        this.idIncrement = 1
       }
-  
+      return this.idIncrement
+  }
+}
+
+
+class ProductManager {
+  constructor() {
+    this.path = "./productos.json";
+    this.nextId = 1;
+  }
+
+  async addProduct(product) {
+    if (
+      !product.title ||
+      !product.description ||
+      !product.price ||
+      !product.thumbnail ||
+      !product.code ||
+      !product.stock
+    ) {
+      console.log("Todos los campos deben estar completos");
+      return;
     }
+    const prods = JSON.parse(await fs.readFile(this.path, "utf-8"));
+    const productos = prods.find(
+      (prod) =>
+        prod.title === product.title &&
+        prod.description === product.description &&
+        prod.price === product.price &&
+        prod.thumbnail === product.thumbnail &&
+        prod.code === product.code &&
+        prod.stock === product.stock
+    );
+    if (productos) {
+      console.log("Producto ya fue agregado");
+    } else {
   
-    getProductById(id) {
       
-      const product = this.products.find((product) => product.id === id);
-  
-      if (!product) {
-        console.log('El producto con el id:' +id + ' No fue encontrado');
-  
-      }
-  
-      return product;
+
+      prods.push(product);
+      await fs.writeFile(this.path, JSON.stringify(prods, null, 2));
     }
   }
-  
-  
-  
-  const CallProducts = new ProductManager();
+
+  async getProducts() {
+    await fs.access(this.path);
+    const prods = JSON.parse(await fs.readFile(this.path, "utf-8"));
+    if (prods) {
+      console.log(prods);
+    } else {
+      console.log("No hay productos");
+    }
+  }
+
+  async getProductById(id) {
+    const prods = JSON.parse(await fs.readFile(this.path, "utf-8"));
+    const productos = prods.find((prod) => prod.id === id);
+    if (productos) {
+      console.log(productos);
+    } else {
+      console.log("Producto no encontrado");
+    }
+  }
+
+  async deleteProduct(id) {
+    const prods = JSON.parse(await fs.readFile(this.path, "utf-8"));
+    const productos = prods.find((prod) => prod.id === id);
+    if (productos) {
+      await fs.writeFile(this.path, JSON.stringify(prods.filter((prod) => prod.id != id))
+      );
+    } else {
+      console.log("Producto no encontrado");
+    }
+  }
+
+  async updateProduct(id, product) {
+    const prods = JSON.parse(await fs.readFile(this.path, "utf-8"));
+    const indice = prods.findIndex((prod) => prod.id === id);
+
+    if (indice != -1) {
+      prods[indice].title = product.title;
+      prods[indice].description = product.description;
+      prods[indice].price = product.price;
+      prods[indice].thumbnail = product.thumbnail;
+      prods[indice].code = product.code;
+      prods[indice].stock = product.stock;
+      await fs.writeFile(this.path, JSON.stringify(prods));
+    } else {
+      console.log("El producto no existe");
+    }
+  }
+}
+
+let producto = new Product("zapas", "nike", 100, "ABC123", 10, []);
 
 
 
-  
-  
-  console.log(CallProducts.getProducts());
-  
-  //console.log(CallProducts.getProductById());
+let manager = new ProductManager();
+
+manager.deleteProduct(5);
