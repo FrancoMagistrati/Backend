@@ -3,9 +3,8 @@ const app = express();
 import fs from 'fs'
 
 
-// Endpoint para obtener todos los productos
 app.get('/productos', (req, res) => {
-  // Leer el archivo 'productos.json'
+
   fs.readFile('productos.json', 'utf8', (err, data) => {
     if (err) {
       console.error(err);
@@ -14,22 +13,22 @@ app.get('/productos', (req, res) => {
     }
 
     const productos = JSON.parse(data);
-    const limit = req.query.limit; // Obtener el valor del parámetro de consulta 'limit'
+    const limit = req.query.limit; 
 
     if (limit) {
-      const limitedProducts = productos.slice(0, limit); // Obtener solo el número de productos solicitados
+      const limitedProducts = productos.slice(0, limit); 
       res.json(limitedProducts);
     } else {
-      res.json(productos); // Devolver todos los productos si no se recibe el parámetro 'limit'
+      res.json(productos); 
     }
   });
 });
 
-// Endpoint para obtener un producto por su ID
-app.get('/productos/:pid', (req, res) => {
-  const pid = req.params.pid; // Obtener el valor del parámetro de ruta 'pid'
 
-  // Leer el archivo 'productos.json'
+app.get('/productos/:pid', (req, res) => {
+  const pid = req.params.pid; 
+
+
   fs.readFile('productos.json', 'utf8', (err, data) => {
     if (err) {
       console.error(err);
@@ -38,17 +37,17 @@ app.get('/productos/:pid', (req, res) => {
     }
 
     const productos = JSON.parse(data);
-    const producto = productos.find((p) => p.id === pid); // Buscar el producto con el ID proporcionado
+    const producto = productos.find((p) => p.id === pid); 
 
     if (!producto) {
       res.status(404).send('Producto no encontrado');
     } else {
-      res.json(producto); // Devolver el producto encontrado
+      res.json(producto); 
     }
   });
 });
 
-// Iniciar el servidor en el puerto 3000
+
 app.listen(3000, () => {
   console.log('Servidor iniciado en el puerto 3000');
 });
