@@ -23,7 +23,7 @@ class Product {
 
 class ProductManager {
   constructor() {
-    this.path = "./productos.json";
+    this.path = "../../productos.json";
     this.nextId = 1;
   }
 
