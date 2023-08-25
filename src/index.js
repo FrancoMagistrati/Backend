@@ -9,11 +9,13 @@ const PORT = 8080
 app.get("/", (req, res) => {
     res.send("Bienvenido a la API de productos");
   });
-app.use(express.json)
+app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 app.use('/api/products', productRouter)
 app.use('/static', express.static(path.join(__dirname, '/public')))
+app.use('/api/cart', cartRouter);
+
 
 app.listen(PORT, () => {
     console.log(`Server on port ${PORT}`)
