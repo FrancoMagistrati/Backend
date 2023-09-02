@@ -1,98 +1,71 @@
 import express from 'express'
-import http from 'http';
-import { Server } from 'socket.io';
-import { engine } from 'express-handlebars';
-import bodyParser from 'body-parser';
+import multer from 'multer'
+import prodsRouter from "./routes/products.routes.js";
 import { __dirname } from './path.js';
-import path from 'path'
+import { engine } from 'express-handlebars';
+import { Server } from 'socket.io';
+import path from 'path';
+import { promises as fs } from 'fs'; // Importa módulo "fs"
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const PORT = 4000
+const app = express()
 
-app.engine('handlebars', engine());
-app.set('view engine', 'handlebars');
+//Config
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'src/public/img') //null hace referencia a que no envia errores
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}${file.originalname}`) //Concateno el nombre original de mi archivo con milisegundos con Date.now()
+    }
+})
 
+const serverExpress = app.listen(PORT, () => {
+    console.log(`Server on port ${PORT}`)
+})
 
-app.set('views', path.join(__dirname, 'vista'));
-app.set('view engine', 'ejs');
+//Middleware
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
+app.engine('handlebars', engine()) //Defino que motor de plantillas voy a utilizar y su config
+app.set('view engine', 'handlebars') //Setting de mi app de hbs
+app.set('views', path.resolve(__dirname, './views')) //Resolver rutas absolutas a traves de rutas relativas
+const upload = multer({ storage: storage })
+app.use('/static', express.static(path.join(__dirname, '/public'))) //Unir rutas en una sola concatenandolas
 
-app.use(bodyParser.urlencoded({ extended: false }));
-
-
-function obtenerProductos() {
-
-  const jsonString = fs.readFileSync('../../productos.json', 'utf-8');
-
-
-  const productos = JSON.parse(jsonString);
-
-
-  return productos;
-}
-
-
-function crearProducto(nombre) {
-
-  const producto = nombre;
-
-
-  io.emit('nuevoProducto', producto);
-}
-
-
-function eliminarProducto(id) {
-
-  const productoId = id;
-
-
-  io.emit('eliminarProducto', productoId);
-}
-
-
+//Server Socket.io
+const io = new Server(serverExpress)
+const prods = []
 io.on('connection', (socket) => {
-  console.log('Un cliente se ha conectado');
+    console.log("Servidor Socket.io conectado")
 
+    socket.on('nuevoProducto', async (nuevoProd) => {
+        prods.push(nuevoProd)
+        socket.emit('prods', prods)
 
-  socket.on('nuevoProducto', (producto) => {
+        // Aquí puedes insertar tu lógica para escribir a un archivo utilizando fs
+        const productosJson = JSON.stringify(prods);
+        await fs.writeFile('productos.json', productosJson); // Guarda la lista de productos en un archivo
+    })
 
-    io.emit('productoCreado', producto);
-  });
+})
 
-  socket.on('eliminarProducto', (productoId) => {
+//Routes
 
-    io.emit('productoEliminado', productoId);
-  });
-});
+app.use('/api/products', prodsRouter)
 
+app.get('/static', (req, res) => {
+    res.render('realTimeProducts', {
+        css: "style.css",
+        title: "Chat",
+        js: "realTimeProducts.js"
 
-app.get('/realtimeproducts', (req, res) => {
+    })
+})
 
-  res.render('realTimeProducts', { productos: obtenerProductos() });
-});
-
-
-app.post('/crearproducto', (req, res) => {
-  const nombreProducto = req.body.nombre;
-
-  io.emit('nuevoProducto', nombreProducto);
-
-  res.redirect('/realtimeproducts');
-});
-
-
-app.post('/eliminarproducto', (req, res) => {
-  const productoId = req.body.id;
-
- 
-  io.emit('eliminarProducto', productoId);
-
-  res.redirect('/realtimeproducts');
-});
-
-
-const PORT = 8080;
-server.listen(PORT, () => {
-  console.log(`Servidor iniciado en el puerto ${PORT}`);
-});
+app.post('/upload', upload.single('product'), (req, res) => {
+    console.log(req.file)
+    console.log(req.body)
+    res.status(200).send("Imagen cargada")
+})
