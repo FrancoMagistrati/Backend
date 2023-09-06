@@ -39,7 +39,7 @@ app.set('views', path.resolve(__dirname, './views'));
 
 
 const io = new Server(serverExpress);
-const prods = [];
+
 
 io.on('connection', (socket) => {
 
