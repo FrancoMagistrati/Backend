@@ -1,19 +1,28 @@
-[{
+[
+  {
     "title": "Manzana",
     "description": "fruta",
     "code": "0001",
     "stock": 40
-},
-{
+  },
+  {
     "title": "Pera",
     "description": "fruta",
     "code": "0002",
     "stock": 40
-},
-{
+  },
+  {
     "title": "Mandarina",
     "description": "fruta",
     "code": "0003",
     "stock": 40
-}
+  },
+  {
+    "title": "dsada",
+    "description": "dsa",
+    "code": "dsad",
+    "price": "dsadsa",
+    "thumbnail": "dsadsa",
+    "stock": "dsadas"
+  }
 ]
