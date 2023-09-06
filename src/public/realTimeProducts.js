@@ -16,7 +16,7 @@ socket.on('product', (product) => {
     let productHtml = "";
     product.forEach(prod => {
         productHtml += `<tr id='row-${prod.id}'>
-        <td>${prods.title}</td>
+        <td>${prod.title}</td>
         <td>${prod.description}</td>
         <td>${prod.price}</td>
         <td>${prod.thumbnail}</td>
