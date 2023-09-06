@@ -1,14 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Productos en tiempo real</title>
-</head>
-<body>
-  <h1>Lista de productos en tiempo real</h1>
-  <ul>
-    {{#each productos}}
-      <li>{{this}}</li>
-    {{/each}}
-  </ul>
-</body>
-</html>
+<h1>Crea un nuevo producto</h1>
+
+<form id="idForm">
+<label for="title">Title</label>
+<input type="text" required name="title" />
+
+<label for="description">Description</label>
+<input type="text" required name="description" />
+
+
+<label for="code">Code</label>
+<input type="text" required name="code" />
+
+
+<label for="price">Price</label>
+<input type="text" required name="price" />
+
+<label for="thumbnail">Thumbnail</label>
+<input type="text" required name="thumbnail" />
+
+<label for="stock">Stock</label>
+<input type="text" required name="stock" />
+
+<button type="submit">Crear</button>
+
+</form>
+
+<div>
+  <h2>Productos en tiempo real</h2>
+  <div>  <table id="productsTable"> 
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Description</th>
+          <th scope="col">Code</th>
+          <th scope="col">Price</th>
+          <th scope="col">Thumbnail</th>
+          <th scope="col">Stock</th>
+        </tr>
+      </thead>
+  <tbody id="tableBody">
+
+  </tbody>
+  </table>
+  
+
+  </div>
+
+</div>

@@ -22,8 +22,8 @@ class Product {
 
 
 class ProductManager {
-  constructor() {
-    this.path = "../../productos.json";
+  constructor(path) {
+    this.path = path;
     this.nextId = 1;
   }
 
@@ -64,7 +64,7 @@ class ProductManager {
     await fs.access(this.path);
     const prods = JSON.parse(await fs.readFile(this.path, "utf-8"));
     if (prods) {
-      console.log(prods);
+      return prods;
     } else {
       console.log("No hay productos");
     }
@@ -108,11 +108,6 @@ class ProductManager {
     }
   }
 }
-export default new ProductManager()
+export default ProductManager
 
-let producto = new Product("zapas", "nike", 100, "ABC123", 10, []);
-
-
-
-let manager = new ProductManager();
 

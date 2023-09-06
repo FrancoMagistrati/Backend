@@ -1,14 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Inicio</title>
-</head>
-<body>
   <h1>Lista de productos</h1>
   <ul>
-    {{#each productos}}
-      <li>{{this}}</li>
+    {{#each product}}
+      <li>{{this.title}}</li>
+      <li>{{this.code}}</li>
+      <li>{{this.description}}</li>
+      <li>{{this.thumbnail}}</li>
+      <li>{{this.price}}</li>
+      <li>{{this.stock}}</li>
+      <br>
     {{/each}}
   </ul>
-</body>
-</html>
+ 
