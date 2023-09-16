@@ -5,11 +5,21 @@ import { __dirname } from './path.js';
 import { engine } from 'express-handlebars';
 import { Server } from 'socket.io';
 import path from 'path';
-import { promises as fs } from 'fs';
 import ProductManager from './routers/productManager.js';
+import mongoose from 'mongoose'
+import {userModel} from './models/user.model.js'
+
+const resultado = await userModel.paginate({ password: '1234' }, { limit: 20, page: 1, sort: { edad: 'asc' } })
+console.log(resultado);
+
+
 
 const PORT = 4000;
 const app = express();
+
+mongoose.connect('mongodb+srv://francomagistrati1:coderhouse@cluster0.naoex34.mongodb.net/?retryWrites=true&w=majority')
+.then(() => console.log('Esta conecetado'))
+.catch(() => console.log('Error'))
 
 const manager = new ProductManager(path.join(__dirname, '/productos.json'))
 
