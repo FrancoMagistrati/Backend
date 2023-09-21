@@ -57,14 +57,14 @@ const io = new Server(serverExpress);
 io.on('connection', (socket) => {
 
     socket.on('addProduct', async (newProduct) => {
-        await productModel.addProduct(newProduct);
-        const product = await productModel.getProducts();
+        await productModel.create(newProduct);
+        const product = await productModel.findById();
         io.emit('product', product);
     });
 
     socket.on('loadProducts', async () => {
         
-        const product = await productModel.getProducts();
+        const product = await productModel.findById();
         socket.emit('product', product);
     });
 
@@ -75,7 +75,7 @@ const upload = multer({ storage: storage });
 
 
 app.get('/', async (req, res) => {
-const product = await productModel.getProducts();
+const product = await productModel.findById();
 res.render('home', {
     title: 'Products',
     product: product
