@@ -8,7 +8,7 @@ import path from 'path';
 import mongoose from 'mongoose';
 import {userModel} from './models/user.model.js';
 import cartRouter from './routers/cart.js';
-
+import { productModel } from './models/product.model.js';
 
 
 const PORT = 4000;
@@ -57,14 +57,14 @@ const io = new Server(serverExpress);
 io.on('connection', (socket) => {
 
     socket.on('addProduct', async (newProduct) => {
-        await manager.addProduct(newProduct);
-        const product = await manager.getProducts();
+        await productModel.addProduct(newProduct);
+        const product = await productModel.getProducts();
         io.emit('product', product);
     });
 
     socket.on('loadProducts', async () => {
         
-        const product = await manager.getProducts();
+        const product = await productModel.getProducts();
         socket.emit('product', product);
     });
 
@@ -75,7 +75,7 @@ const upload = multer({ storage: storage });
 
 
 app.get('/', async (req, res) => {
-const product = await manager.getProducts();
+const product = await productModel.getProducts();
 res.render('home', {
     title: 'Products',
     product: product

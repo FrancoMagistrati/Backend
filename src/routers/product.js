@@ -34,7 +34,7 @@ productRouter.get('/', async (req, res) => {
 
 productRouter.get('/:id', async (req, res) => {
     const {id} = req.params
-    const prods = await productModel.getProductsById(parseInt(id))
+    const prods = await productModel.findById(parseInt(id))
 
     if(prods){
         res.status(200).send(prods)
@@ -44,15 +44,20 @@ productRouter.get('/:id', async (req, res) => {
 })
 
 productRouter.post('/', async (req, res) => {
-    const newProduct = req.body;
-    const addedProduct = await productModel.createProduct(newProduct);
-    res.status(201).send(addedProduct);
-})
+    const { title, description, stock, code, price, category } = req.body
+    try {
+        const prod = await productModel.create({ title, description, stock, code, price, category })
+        res.status(200).send({ respuesta: 'OK', mensaje: prod })
+
+    } catch (error) {
+        res.status(400).send({ respuesta: 'Error en crear el producto', mensaje: error })
+    }
+});
 
 productRouter.put('/:id', async (req, res) => {
     const {id} = req.params;
     const productUpdates = req.body; 
-    const updatedProduct = await productModel.updateProduct(parseInt(id), productUpdates);
+    const updatedProduct = await productModel.findByIdAndUpdate(parseInt(id), productUpdates);
     if(updatedProduct){
         res.status(200).send(updatedProduct);
     } else {
@@ -62,7 +67,7 @@ productRouter.put('/:id', async (req, res) => {
 
 productRouter.delete('/:id', async (req, res) => {
     const {id} = req.params;
-    const deletedProduct = await productModel.deleteProduct(parseInt(id));
+    const deletedProduct = await productModel.findByIdAndDelete(parseInt(id));
     if(deletedProduct){
         res.status(200).send("Producto eliminado");
     } else {

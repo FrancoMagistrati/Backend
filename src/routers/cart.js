@@ -7,7 +7,7 @@ const cartRouter = Router();
 
 
 cartRouter.post('/', async (req, res) => {
-    const confirmacion = await cartModel.createCart()
+    const confirmacion = await cartModel.create()
     if (confirmacion) {
         res.status(200).send("Carrito creado correctamente")
     } else {
@@ -18,23 +18,31 @@ cartRouter.post('/', async (req, res) => {
 cartRouter.get('/:cid', async (req, res) => {
     const { cid } = req.params
 
-    const cart = await cartModel.getCartById(cid)
-
-    if (cart)
-        res.status(200).send(cart.products)
-    else
-        res.status(404).send("Carrito no encontrado")
-
+    try {
+        const cart = await cartModel.findById(cid)
+        if (cart) {
+            res.status(200).send({ respuesta: "Ok", mensaje: cart })
+        } else {
+            res.status(404).send({
+                respuesta: "Error en consultar carrito",
+                mensaje: "No encontrado",
+            })
+        }
+    } catch (error) {
+        res
+            .status(400)
+            .send({ respuesta: "error en consultar carrito", mensaje: error })
+    }
 })
 
 cartRouter.post('/:cid/products/:pid', async (req, res) => {
     const { cid, pid } = req.params
 
-    const cart = await cartModel.getCartById(cid)
+    const cart = await cartModel.findById(cid)
 
 
     if (cart) {
-        const confirmacion = await cartModel.addProduct(cid, pid)
+        const confirmacion = await cartModel.create(cid, pid)
         if (confirmacion)
             res.status(200).send("Producto agregado correctamente")
         else
