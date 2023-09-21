@@ -1,5 +1,5 @@
 import { Router } from "express";
-import cartManager from "./controlers/cartManager.js"
+import { cartModel } from "../models/cart.model.js";
 
 
 
@@ -7,7 +7,7 @@ const cartRouter = Router();
 
 
 cartRouter.post('/', async (req, res) => {
-    const confirmacion = await cartManager.createCart()
+    const confirmacion = await cartModel.createCart()
     if (confirmacion) {
         res.status(200).send("Carrito creado correctamente")
     } else {
@@ -18,7 +18,7 @@ cartRouter.post('/', async (req, res) => {
 cartRouter.get('/:cid', async (req, res) => {
     const { cid } = req.params
 
-    const cart = await cartManager.getCartById(cid)
+    const cart = await cartModel.getCartById(cid)
 
     if (cart)
         res.status(200).send(cart.products)
@@ -30,11 +30,11 @@ cartRouter.get('/:cid', async (req, res) => {
 cartRouter.post('/:cid/products/:pid', async (req, res) => {
     const { cid, pid } = req.params
 
-    const cart = await cartManager.getCartById(cid)
+    const cart = await cartModel.getCartById(cid)
 
 
     if (cart) {
-        const confirmacion = await cartManager.addProduct(cid, pid)
+        const confirmacion = await cartModel.addProduct(cid, pid)
         if (confirmacion)
             res.status(200).send("Producto agregado correctamente")
         else

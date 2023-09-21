@@ -5,12 +5,9 @@ import { __dirname } from './path.js';
 import { engine } from 'express-handlebars';
 import { Server } from 'socket.io';
 import path from 'path';
-import ProductManager from './routers/productManager.js';
-import mongoose from 'mongoose'
-import {userModel} from './models/user.model.js'
-
-const resultado = await userModel.paginate({ password: '1234' }, { limit: 20, page: 1, sort: { edad: 'asc' } })
-console.log(resultado);
+import mongoose from 'mongoose';
+import {userModel} from './models/user.model.js';
+import cartRouter from './routers/cart.js';
 
 
 
@@ -18,10 +15,16 @@ const PORT = 4000;
 const app = express();
 
 mongoose.connect('mongodb+srv://francomagistrati1:coderhouse@cluster0.naoex34.mongodb.net/?retryWrites=true&w=majority')
-.then(() => console.log('Esta conecetado'))
+.then(async() => {
+    console.log('Esta conecetado')
+    const resultado = await userModel.paginate({ password: '1234' }, { limit: 20, page: 1, sort: { edad: 'asc' } })
+    console.log(resultado);
+    
+    
+})
 .catch(() => console.log('Error'))
 
-const manager = new ProductManager(path.join(__dirname, '/productos.json'))
+
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -95,7 +98,7 @@ app.post('/upload', upload.single('product'), (req, res) => {
 });
 
 
-
+app.use('/api/cart', cartRouter)
 
 
 console.log(path.resolve(__dirname, './views'));

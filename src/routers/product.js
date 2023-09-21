@@ -2,17 +2,18 @@ import { Router } from "express";
 import { productModel } from "../models/product.model.js";
 import paginate from 'express-paginate';
 
+
 const productRouter = Router();
 productRouter.use(paginate.middleware(10, 50)); 
 
 productRouter.get('/', async (req, res) => {
     const { limit, offset, page } = req.query;
-    const prods = await productModel.getProducts();
+   
 
     const itemCount = prods.length;
     const pageCount = Math.ceil(itemCount / limit);
+    const prods = await productModel.paginate(query, options)
 
-    const products = prods.slice(offset, offset + limit);
 
     const response = {
       status: "success",
