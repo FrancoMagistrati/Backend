@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { cartModel } from "../models/cart.model.js";
+import { productModel } from "../models/product.model.js";
 
 
 
@@ -7,9 +8,9 @@ const cartRouter = Router();
 
 
 cartRouter.post('/', async (req, res) => {
-    const confirmacion = await cartModel.create()
+    const confirmacion = await cartModel.create({})
     if (confirmacion) {
-        res.status(200).send("Carrito creado correctamente")
+        res.status(200).send({message: "Carrito creado correctamente", cart: confirmacion})
     } else {
         res.status(400).send("Error al crear carrito")
     }
@@ -36,19 +37,45 @@ cartRouter.get('/:cid', async (req, res) => {
 })
 
 cartRouter.post('/:cid/products/:pid', async (req, res) => {
-    const { cid, pid } = req.params
+    const { cid, pid } = req.params;
+    const { quantity } = req.body;
 
+   
+
+try{
     const cart = await cartModel.findById(cid)
-
-
     if (cart) {
-        const confirmacion = await cartModel.create(cid, pid)
-        if (confirmacion)
-            res.status(200).send("Producto agregado correctamente")
-        else
-            res.status(400).send("Error al agregar producto")
-    } else {
-        res.status(404).send("Carrito no encontrado")
+        const prod = await productModel.findById(pid)
+        
+        if(prod){
+            const indice = cart.products.findIndex(
+                (item) => item.id_prod === pid
+            );
+            if(indice !=1){
+                cart.products[indice].quantity = quantity;
+            }else {
+                cart.products.push({id_prod: pid, quantity: quantity})
+            }
+
+            const respuesta = await cartModel.findByIdAndUpdate(cid, cart)
+            res.status(200).send({respuesta: "ok", mensaje:respuesta})
+        }else {
+            res.status(404).send({
+                mensaje:"producto no encontrado"
+            });
+        }
+
+}else{
+    res.status(404).send({
+        mensaje:"Carrito no encontrado"
+    });
+}
+
+    }catch (error){
+        console.log(error)
+        res.status(400).send({
+            mensaje:error,
+        })
     }
 })
 

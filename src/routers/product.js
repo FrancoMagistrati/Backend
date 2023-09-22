@@ -7,34 +7,23 @@ const productRouter = Router();
 productRouter.use(paginate.middleware(10, 50)); 
 
 productRouter.get('/', async (req, res) => {
-    const { limit, offset, page } = req.query;
-   
+let {limit, sort, page, category} = req.query;
+limit = limit ?? 5
+page = page ?? 1
 
-    const itemCount = prods.length;
-    const pageCount = Math.ceil(itemCount / limit);
-    const prods = await productModel.paginate(query, options)
+try{
 
-
-    const response = {
-      status: "success",
-      payload: products,
-      totalPages: pageCount,
-      prevPage: paginate.hasPreviousPages(req) ? page - 1 : null,
-      nextPage: paginate.hasNextPages(req) ? page + 1 : null,
-      page: page,
-      hasPrevPage: paginate.hasPreviousPages(req),
-      hasNextPage: paginate.hasNextPages(req),
-      prevLink: paginate.hasPreviousPages(req) ? paginate.href(req)(true) : null,
-      nextLink: paginate.hasNextPages(req) ? paginate.href(req)() : null
-    };
-
-    res.status(200).send(response);
+    const products = await productModel.paginate(category ? {category: category} : {}, {limit: limit, page: page, sort: {price: sort}});
+    res.status(200).send(products)
+}catch (error){
+    res.status(400).send({message: "Error en buscar productos"})
+}
 });
 
 
 productRouter.get('/:id', async (req, res) => {
     const {id} = req.params
-    const prods = await productModel.findById(parseInt(id))
+    const prods = await productModel.findById(pid)
 
     if(prods){
         res.status(200).send(prods)
@@ -57,7 +46,7 @@ productRouter.post('/', async (req, res) => {
 productRouter.put('/:id', async (req, res) => {
     const {id} = req.params;
     const productUpdates = req.body; 
-    const updatedProduct = await productModel.findByIdAndUpdate(parseInt(id), productUpdates);
+    const updatedProduct = await productModel.findByIdAndUpdate(id, productUpdates);
     if(updatedProduct){
         res.status(200).send(updatedProduct);
     } else {
@@ -67,7 +56,7 @@ productRouter.put('/:id', async (req, res) => {
 
 productRouter.delete('/:id', async (req, res) => {
     const {id} = req.params;
-    const deletedProduct = await productModel.findByIdAndDelete(parseInt(id));
+    const deletedProduct = await productModel.findByIdAndDelete(id);
     if(deletedProduct){
         res.status(200).send("Producto eliminado");
     } else {

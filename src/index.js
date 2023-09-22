@@ -17,9 +17,7 @@ const app = express();
 mongoose.connect('mongodb+srv://francomagistrati1:coderhouse@cluster0.naoex34.mongodb.net/?retryWrites=true&w=majority')
 .then(async() => {
     console.log('Esta conecetado')
-    const resultado = await userModel.paginate({ password: '1234' }, { limit: 20, page: 1, sort: { edad: 'asc' } })
-    console.log(resultado);
-    
+  
     
 })
 .catch(() => console.log('Error'))
