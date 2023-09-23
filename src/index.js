@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 import {userModel} from './models/user.model.js';
 import cartRouter from './routers/cart.js';
 import { productModel } from './models/product.model.js';
-
+import sessionRouter from './routes/sessions.js'
 
 const PORT = 4000;
 const app = express();
@@ -19,7 +19,7 @@ mongoose.connect('mongodb+srv://francomagistrati1:coderhouse@cluster0.naoex34.mo
     console.log('Esta conecetado')
   
     
-})
+}) 
 .catch(() => console.log('Error'))
 
 
@@ -45,7 +45,20 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.resolve(__dirname, './views'));
+app.use(session({
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URL,
+        mongoOptions: {
+            useNewUrlParser: true, 
+            useUnifiedTopology: true 
+        },
+        ttl: 60 
 
+    }),
+    secret: process.env.SESSION_SECRET,
+    resave: false, 
+    saveUninitialized: false 
+}))
 
 
 
@@ -97,7 +110,7 @@ app.post('/upload', upload.single('product'), (req, res) => {
 
 
 app.use('/api/cart', cartRouter)
-
+app.use('/api/sessions', sessionRouter)
 
 console.log(path.resolve(__dirname, './views'));
 
