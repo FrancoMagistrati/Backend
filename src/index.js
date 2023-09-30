@@ -10,6 +10,8 @@ import {userModel} from './models/user.model.js';
 import cartRouter from './routers/cart.js';
 import { productModel } from './models/product.model.js';
 import sessionRouter from './routes/sessions.js'
+import passport from 'passport';
+import initializePassport from './config/passport.js'
 
 const PORT = 4000;
 const app = express();
@@ -108,7 +110,8 @@ app.post('/upload', upload.single('product'), (req, res) => {
     res.status(200).send("Imagen cargada");
 });
 
-
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/api/cart', cartRouter)
 app.use('/api/sessions', sessionRouter)
 
