@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import multer from 'multer';
 import prodsRouter from "./routers/product.js";
@@ -9,9 +12,11 @@ import mongoose from 'mongoose';
 import {userModel} from './models/user.model.js';
 import cartRouter from './routers/cart.js';
 import { productModel } from './models/product.model.js';
-import sessionRouter from './routes/sessions.js'
+import sessionRouter from './routers/sessions.js';
 import passport from 'passport';
-import initializePassport from './config/passport.js'
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+
 
 const PORT = 4000;
 const app = express();
@@ -49,18 +54,17 @@ app.set('view engine', 'handlebars');
 app.set('views', path.resolve(__dirname, './views'));
 app.use(session({
     store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URL,
+        mongoUrl: "mongodb+srv://francomagistrati1:coderhouse@cluster0.naoex34.mongodb.net/?retryWrites=true&w=majority",
         mongoOptions: {
             useNewUrlParser: true, 
             useUnifiedTopology: true 
         },
         ttl: 60 
-
     }),
-    secret: process.env.SESSION_SECRET,
+    secret: "usuario",
     resave: false, 
     saveUninitialized: false 
-}))
+}));
 
 
 
