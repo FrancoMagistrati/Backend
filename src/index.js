@@ -16,7 +16,7 @@ import sessionRouter from './routers/sessions.js';
 import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-
+import initializePassport from './config/passport.js' 
 
 const PORT = 4000;
 const app = express();
@@ -113,7 +113,7 @@ app.post('/upload', upload.single('product'), (req, res) => {
     console.log(req.body);
     res.status(200).send("Imagen cargada");
 });
-
+initializePassport()
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/api/cart', cartRouter)
