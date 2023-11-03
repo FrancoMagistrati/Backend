@@ -1,13 +1,12 @@
+// cart.router.js
 import { Router } from "express";
 import { cartModel } from "../models/cart.model.js";
 import { productModel } from "../models/product.model.js";
-
-
+import { authenticateToken } from '../middlewares/authMiddleware';
 
 const cartRouter = Router();
 
-
-cartRouter.post('/', async (req, res) => {
+cartRouter.post('/', authenticateToken, async (req, res) => {
     const confirmacion = await cartModel.create({})
     if (confirmacion) {
         res.status(200).send({message: "Carrito creado correctamente", cart: confirmacion})
@@ -36,40 +35,38 @@ cartRouter.get('/:cid', async (req, res) => {
     }
 })
 
-cartRouter.post('/:cid/products/:pid', async (req, res) => {
+cartRouter.post('/:cid/products/:pid', authenticateToken, async (req, res) => {
     const { cid, pid } = req.params;
     const { quantity } = req.body;
 
-   
+    try{
+        const cart = await cartModel.findById(cid)
+        if (cart) {
+            const prod = await productModel.findById(pid)
+            
+            if(prod){
+                const indice = cart.products.findIndex(
+                    (item) => item.id_prod === pid
+                );
+                if(indice !=1){
+                    cart.products[indice].quantity = quantity;
+                }else {
+                    cart.products.push({id_prod: pid, quantity: quantity})
+                }
 
-try{
-    const cart = await cartModel.findById(cid)
-    if (cart) {
-        const prod = await productModel.findById(pid)
-        
-        if(prod){
-            const indice = cart.products.findIndex(
-                (item) => item.id_prod === pid
-            );
-            if(indice !=1){
-                cart.products[indice].quantity = quantity;
+                const respuesta = await cartModel.findByIdAndUpdate(cid, cart)
+                res.status(200).send({respuesta: "ok", mensaje:respuesta})
             }else {
-                cart.products.push({id_prod: pid, quantity: quantity})
+                res.status(404).send({
+                    mensaje:"producto no encontrado"
+                });
             }
 
-            const respuesta = await cartModel.findByIdAndUpdate(cid, cart)
-            res.status(200).send({respuesta: "ok", mensaje:respuesta})
-        }else {
+        }else{
             res.status(404).send({
-                mensaje:"producto no encontrado"
+                mensaje:"Carrito no encontrado"
             });
         }
-
-}else{
-    res.status(404).send({
-        mensaje:"Carrito no encontrado"
-    });
-}
 
     }catch (error){
         console.log(error)
